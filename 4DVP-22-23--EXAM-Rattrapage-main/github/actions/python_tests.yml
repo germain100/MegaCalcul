@@ -1,0 +1,49 @@
+name: Tests Python et Rapport de Couverture
+
+on:
+  push:
+    branches:
+      - main  # Remplacez par le nom de votre branche principale
+  pull_request:
+
+jobs:
+  test-and-report:
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du dépôt
+        uses: actions/checkout@v2
+
+      - name: Configuration de Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Installation des dépendances
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  
+      - name: Exécution des tests et génération du rapport d'exécution
+        run: make tests
+        continue-on-error: true  
+
+      - name: Génération du rapport de couverture de code
+        run: make coverage-report
+
+      - name: Sauvegarde du rapport d'exécution des tests en tant qu'artefact
+        if: always()  # Sauvegarder l'artefact même si l'étape précédente échoue
+        uses: actions/upload-artifact@v2
+        with:
+          name: rapport-execution-tests
+          path: report.html
+
+      - name: Sauvegarde du rapport de couverture de code en tant qu'artefact
+        if: always()  # Sauvegarder l'artefact même si l'étape précédente échoue
+        uses: actions/upload-artifact@v2
+        with:
+          name: rapport-couverture-code
+          path: htmlcov/
