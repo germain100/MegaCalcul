@@ -1,0 +1,11 @@
+super_linter:
+  runs-on: ubuntu-latest
+  if: github.event_name == 'pull_request'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run Super-Linter
+      uses: github/super-linter@v4
+      with:
+        flags: "--exclude ui/templates" 
